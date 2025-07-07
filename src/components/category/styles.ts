@@ -4,7 +4,9 @@ export const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 5
+    gap: 5,
+    borderBottomWidth: 1,
+    borderBottomColor: "transparent"
   },
   name: {
     fontSize: 16,

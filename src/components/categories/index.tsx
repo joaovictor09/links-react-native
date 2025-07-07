@@ -3,7 +3,13 @@ import { styles } from "./styles";
 import { categories } from "@/utils/categories";
 import { Category } from "../category";
 
-export function Categories() {
+type Props = {
+  selected: string
+  onChange: (category: string) => void
+}
+
+export function Categories({ onChange, selected }: Props) {
+  
   return (
     <FlatList 
       style={styles.container}
@@ -16,7 +22,8 @@ export function Categories() {
         <Category
           icon={item.icon} 
           name={item.name} 
-          isSelected
+          isSelected={item.name === selected}
+          onPress={() => onChange(item.name)}
         />)
       }
     />

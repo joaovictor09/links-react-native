@@ -14,7 +14,7 @@ export const styles = StyleSheet.create({
   },
   title: {
     color: colors.gray[200],
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: "600"
   },
   label: {

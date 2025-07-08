@@ -1,4 +1,4 @@
-import { Alert, FlatList, Image, Modal, Text, TouchableOpacity, View } from "react-native";
+import { Alert, FlatList, Image, Linking, Modal, Text, TouchableOpacity, View } from "react-native";
 import {MaterialIcons} from '@expo/vector-icons'
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
@@ -13,6 +13,8 @@ import { Option } from "@/components/option";
 import { linkStorage, type LinkStorage } from "@/storage/link-storage";
 
 export default function Index() {
+  const [showModal, setShowModal] = useState(false)
+  const [link, setLink] = useState<LinkStorage>({} as LinkStorage)
   const [category, setCategory] = useState(categories[0].name)
   const [links, setLinks] = useState<LinkStorage[]>([])
   
@@ -25,6 +27,42 @@ export default function Index() {
       setLinks(filtered)
     } catch(error) {
       Alert.alert("Erro", "Não foi possível listar os links")
+      console.error(error)
+    }
+  }
+
+  function handleDetails(selected: LinkStorage) {
+    setShowModal(true)
+    setLink(selected)
+  }
+
+  async function linkRemove() {
+    try {
+      await linkStorage.remove(link.id)
+      getLinks()
+      setShowModal(false)
+    } catch (error) {
+      Alert.alert("Erro", "Não foi possível excluir o link")
+    }
+  }
+
+  function handleRemove() {
+    Alert.alert("Excluir", "Deseja realmente excluir?", [
+      {
+        style: "cancel", text: "Não",
+      },
+      {
+        text: "Sim", onPress: linkRemove
+      }
+    ])
+  }
+
+  async function handleOpen() {
+    try {
+      await Linking.openURL(link.url)
+      setShowModal(false)
+    } catch (error) {
+      Alert.alert("Link", "Não foi possível abrir o link")
       console.error(error)
     }
   }
@@ -52,7 +90,7 @@ export default function Index() {
           <Link 
             name={item.name}
             url={item.url} 
-            onDetails={() => console.log("Clicou")} 
+            onDetails={() => handleDetails(item)} 
           />
         )}
         style={styles.links}
@@ -60,27 +98,27 @@ export default function Index() {
         showsVerticalScrollIndicator={false}
       />
 
-      <Modal visible={false} transparent>
+      <Modal visible={showModal} transparent animationType="slide">
         <View style={styles.modal}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalCategory}>Curso</Text>
-              <TouchableOpacity>
+              <Text style={styles.modalCategory}>{link.category}</Text>
+              <TouchableOpacity onPress={() => setShowModal(false)}>
                 <MaterialIcons name="close" size={20} color={colors.gray[400]} />
               </TouchableOpacity>
             </View>
 
             <Text style={styles.modalLinkName}>
-              Rocketseat
+              {link.name}
             </Text>
 
             <Text style={styles.modalUrl}>
-              https://www/rocketseat.com.br
+              {link.url}
             </Text>
 
             <View style={styles.modalFooter}>
-              <Option name="Excluir" icon="delete" variant="secondary" />
-              <Option name="Abrir" icon="language" />
+              <Option name="Excluir" icon="delete" variant="secondary" onPress={handleRemove} />
+              <Option name="Abrir" icon="language" onPress={handleOpen}/>
             </View>
           </View>
         </View>
